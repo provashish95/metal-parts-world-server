@@ -38,8 +38,22 @@ function verifyToken(req, res, next) {
 async function run() {
     try {
         await client.connect();
-        const partsCollection = client.db('metalDb').collection('parts');
+        const productsCollection = client.db('metalDb').collection('products');
         console.log('db connected');
+
+
+        //get all products
+        app.get('/products', async (req, res) => {
+            const products = await productsCollection.find().toArray();
+            res.send(products);
+        });
+        //get product by id 
+        app.get('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productsCollection.findOne(query);
+            res.send(result);
+        });
 
 
         //for google login use here put method
