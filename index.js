@@ -39,6 +39,7 @@ async function run() {
     try {
         await client.connect();
         const productsCollection = client.db('metalDb').collection('products');
+        const ordersCollection = client.db('metalDb').collection('orders');
         console.log('db connected');
 
 
@@ -53,6 +54,39 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await productsCollection.findOne(query);
             res.send(result);
+        });
+
+        //update product quantity api 
+        app.put('/updateQuantity/:id', async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    quantity: data.updateQuantity
+                },
+            };
+            const result = await productsCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+        });
+
+        //added order on database api 
+        app.post('/orders', async (req, res) => {
+            const orders = req.body;
+            const result = await ordersCollection.insertOne(orders);
+            res.send({ success: 'Order added' });
+            /*             const tokenInfo = req.headers.authorization;
+                        const [email, accessToken] = tokenInfo?.split(" ");
+                        const decoded = verifyToken(accessToken);
+                        //const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+                        if (email === decoded.email) {
+                            const result = await ordersCollection.insertOne(newBooks);
+                            res.send({ success: 'Upload successfully' })
+                        } else {
+                            res.send({ success: 'Unauthorized Access' })
+                        } */
+
         });
 
 
