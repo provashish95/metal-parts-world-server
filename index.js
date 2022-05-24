@@ -40,6 +40,7 @@ async function run() {
         await client.connect();
         const productsCollection = client.db('metalDb').collection('products');
         const ordersCollection = client.db('metalDb').collection('orders');
+        const usersCollection = client.db('metalDb').collection('users');
         console.log('db connected');
 
 
@@ -101,8 +102,8 @@ async function run() {
                 $set: user
             };
             const result = await usersCollection.updateOne(filter, updateDoc, options);
-            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
-            res.send({ result, token });
+            // const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            res.send({ result });
         });
     }
     finally {
