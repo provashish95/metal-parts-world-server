@@ -49,8 +49,9 @@ async function run() {
             const products = await productsCollection.find().toArray();
             res.send(products);
         });
+
         //get product by id 
-        app.get('/products/:id', async (req, res) => {
+        app.get('/products/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await productsCollection.findOne(query);
@@ -58,40 +59,29 @@ async function run() {
         });
 
         //update product quantity api 
-        app.put('/updateQuantity/:id', async (req, res) => {
-            const id = req.params.id;
-            const data = req.body;
-            const filter = { _id: ObjectId(id) };
-            const options = { upsert: true };
-            const updateDoc = {
-                $set: {
-                    quantity: data.updateQuantity
-                },
-            };
-            const result = await productsCollection.updateOne(filter, updateDoc, options);
-            res.send(result)
-        });
+        /*         app.put('/updateQuantity/:id', async (req, res) => {
+                    const id = req.params.id;
+                    const data = req.body;
+                    const filter = { _id: ObjectId(id) };
+                    const options = { upsert: true };
+                    const updateDoc = {
+                        $set: {
+                            quantity: data.updateQuantity
+                        },
+                    };
+                    const result = await productsCollection.updateOne(filter, updateDoc, options);
+                    res.send(result)
+                }); */
 
         //added order on database api 
-        app.post('/orders', async (req, res) => {
+        app.post('/orders', verifyToken, async (req, res) => {
             const orders = req.body;
             const result = await ordersCollection.insertOne(orders);
             res.send({ success: 'Order added' });
-            /*             const tokenInfo = req.headers.authorization;
-                        const [email, accessToken] = tokenInfo?.split(" ");
-                        const decoded = verifyToken(accessToken);
-                        //const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-                        if (email === decoded.email) {
-                            const result = await ordersCollection.insertOne(newBooks);
-                            res.send({ success: 'Upload successfully' })
-                        } else {
-                            res.send({ success: 'Unauthorized Access' })
-                        } */
-
         });
 
 
-        //for google login use here put method
+        //add or update user email for login , register, google sign in
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
