@@ -80,6 +80,21 @@ async function run() {
             res.send({ success: 'Order added' });
         });
 
+        //get my orders by email 
+        app.get('/orders', verifyToken, async (req, res) => {
+            const userEmail = req.query.userEmail;
+            const decodedEmail = req.decoded.email;
+
+            if (userEmail === decodedEmail) {
+                const query = { userEmail: userEmail };
+                const myOrders = await ordersCollection.find(query).toArray();
+                return res.send(myOrders);
+            } else {
+                return res.status(403).send({ message: 'Forbidden access' })
+            }
+
+        });
+
 
         //add or update user email for login , register, google sign in
         app.put('/user/:email', async (req, res) => {
@@ -95,6 +110,8 @@ async function run() {
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
             res.send({ result, token });
         });
+
+
     }
     finally {
 
