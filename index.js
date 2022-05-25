@@ -103,7 +103,7 @@ async function run() {
             res.send(result);
         });
 
-        //get order by id 
+
 
 
 
@@ -120,6 +120,23 @@ async function run() {
             const result = await usersCollection.updateOne(filter, updateDoc, options);
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
             res.send({ result, token });
+        });
+
+        //get all users api 
+        app.get('/users', verifyToken, async (req, res) => {
+            const users = await usersCollection.find().toArray();
+            res.send(users);
+        });
+
+        //make admin from users
+        app.put('/user/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'admin' }
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc);
+            res.send(result);
         });
 
 
