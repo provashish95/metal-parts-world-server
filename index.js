@@ -55,6 +55,13 @@ async function run() {
         }
 
 
+        //add product api 
+        app.post('/products', verifyToken, verifyAdmin, async (req, res) => {
+            const product = req.body;
+            const result = await productsCollection.insertOne(product);
+            res.send(result);
+        });
+
         //get all products
         app.get('/products', async (req, res) => {
             const products = await productsCollection.find().toArray();
@@ -157,6 +164,8 @@ async function run() {
             const isAdmin = user?.role === 'admin';
             res.send({ admin: isAdmin });
         });
+
+
 
 
     }
