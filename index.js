@@ -41,6 +41,7 @@ async function run() {
         const productsCollection = client.db('metalDb').collection('products');
         const ordersCollection = client.db('metalDb').collection('orders');
         const usersCollection = client.db('metalDb').collection('users');
+        const paymentsCollection = client.db('metalDb').collection('payments');
         console.log('db connected');
 
         //verify admin 
@@ -53,6 +54,37 @@ async function run() {
                 return res.status(403).send({ message: 'Forbidden access' })
             }
         }
+
+        //payment post api 
+        app.post('/create-payment-intent', verifyToken, async (req, res) => {
+            const order = req.body;
+            const price = order.price;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            });
+            res.send({ clientSecret: paymentIntent.client_secret })
+        });
+
+        //update data for payment by id 
+        app.patch('/orders/:id', verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId
+                }
+            }
+            const result = await paymentsCollection.insertOne(payment);
+            const updatedOrders = await ordersCollection.updateOne(filter, updateDoc);
+            res.send(updateDoc);
+        });
+
+
 
 
         //add product api 
