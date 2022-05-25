@@ -121,6 +121,14 @@ async function run() {
             res.send(result);
         });
 
+        //get order by id 
+        app.get('/orders/:id', verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollection.findOne(query);
+            res.send(result);
+        });
+
 
 
 
