@@ -95,6 +95,15 @@ async function run() {
 
         });
 
+        //delete order by their email from url api 
+        app.delete('/orders/:email', verifyToken, async (req, res) => {
+            const email = req.params.email;
+            //console.log(email);
+            const filter = { userEmail: email };
+            const result = await ordersCollection.deleteOne(filter);
+            res.send(result);
+        });
+
 
         //add or update user email for login , register, google sign in
         app.put('/user/:email', async (req, res) => {
