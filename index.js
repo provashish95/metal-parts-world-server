@@ -43,6 +43,17 @@ async function run() {
         const usersCollection = client.db('metalDb').collection('users');
         console.log('db connected');
 
+        //verify admin 
+        const verifyAdmin = async (req, res, next) => {
+            const requester = req.decoded.email;
+            const requesterAccount = await usersCollection.findOne({ email: requester });
+            if (requesterAccount.role === 'admin') {
+                next();
+            } else {
+                return res.status(403).send({ message: 'Forbidden access' })
+            }
+        }
+
 
         //get all products
         app.get('/products', async (req, res) => {
@@ -129,7 +140,7 @@ async function run() {
         });
 
         //make admin from users
-        app.put('/user/admin/:email', async (req, res) => {
+        app.put('/user/admin/:email', verifyToken, verifyAdmin, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
             const updateDoc = {
@@ -137,6 +148,14 @@ async function run() {
             };
             const result = await usersCollection.updateOne(filter, updateDoc);
             res.send(result);
+        });
+
+        //find user by email and check isAdmin is or not 
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await usersCollection.findOne({ email: email });
+            const isAdmin = user?.role === 'admin';
+            res.send({ admin: isAdmin });
         });
 
 
