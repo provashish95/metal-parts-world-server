@@ -77,12 +77,25 @@ async function run() {
             const updateDoc = {
                 $set: {
                     paid: true,
+                    status: 'pending',
                     transactionId: payment.transactionId
                 }
             }
             const result = await paymentsCollection.insertOne(payment);
             const updatedOrders = await ordersCollection.updateOne(filter, updateDoc);
             res.send(updateDoc);
+        });
+
+        //update order status by id 
+        app.put('/orders/:id', verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const status = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: status
+            }
+            const updatedOrders = await ordersCollection.updateOne(filter, updateDoc);
+            res.send(updatedOrders);
         });
 
 
@@ -110,6 +123,12 @@ async function run() {
         });
 
 
+
+        //get all orders 
+        app.get('/orders', verifyToken, async (req, res) => {
+            const orders = await ordersCollection.find().toArray();
+            res.send(orders);
+        });
 
         //added order on database api 
         app.post('/orders', verifyToken, async (req, res) => {
@@ -197,7 +216,7 @@ async function run() {
         });
 
         //update user profile
-        app.put('/users/:email', async (req, res) => {
+        app.put('/users/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const user = req.body;
             const filter = { email: email };
