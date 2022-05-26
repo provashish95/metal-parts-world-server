@@ -122,6 +122,15 @@ async function run() {
             res.send(result);
         });
 
+        //delete product by id
+        app.delete('/product/:id', verifyToken, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            result = await productsCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
 
 
         //get all orders 
@@ -138,7 +147,7 @@ async function run() {
         });
 
         //get my orders by email 
-        app.get('/orders', verifyToken, async (req, res) => {
+        app.get('/order', verifyToken, async (req, res) => {
             const userEmail = req.query.userEmail;
             const decodedEmail = req.decoded.email;
 
