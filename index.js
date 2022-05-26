@@ -160,6 +160,14 @@ async function run() {
             res.send(result);
         });
 
+        //delete order by their id from url api 
+        app.delete('/allOrders/:id', verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            result = await ordersCollection.deleteOne(query);
+            res.send(result);
+        });
+
         //get order by id 
         app.get('/orders/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
