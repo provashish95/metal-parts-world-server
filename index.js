@@ -87,7 +87,7 @@ async function run() {
         });
 
         //update order status by id 
-        app.put('/orders/:id', verifyToken, async (req, res) => {
+        app.put('/orders/:id', verifyToken, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const status = req.body;
             const filter = { _id: ObjectId(id) };
@@ -125,7 +125,7 @@ async function run() {
 
 
         //get all orders 
-        app.get('/orders', verifyToken, async (req, res) => {
+        app.get('/orders', verifyToken, verifyAdmin, async (req, res) => {
             const orders = await ordersCollection.find().toArray();
             res.send(orders);
         });
@@ -161,7 +161,7 @@ async function run() {
         });
 
         //delete order by their id from url api 
-        app.delete('/allOrders/:id', verifyToken, async (req, res) => {
+        app.delete('/allOrders/:id', verifyToken, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             result = await ordersCollection.deleteOne(query);
