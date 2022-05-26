@@ -99,8 +99,6 @@ async function run() {
         });
 
 
-
-
         //add product api 
         app.post('/products', verifyToken, verifyAdmin, async (req, res) => {
             const product = req.body;
@@ -129,8 +127,6 @@ async function run() {
             result = await productsCollection.deleteOne(query);
             res.send(result);
         });
-
-
 
 
         //get all orders 
@@ -259,7 +255,7 @@ async function run() {
             res.send(result);
         });
 
-        //find user by email and check isAdmin is or not 
+        //find user by email and check Admin is or not 
         app.get('/admin/:email', async (req, res) => {
             const email = req.params.email;
             const user = await usersCollection.findOne({ email: email });
