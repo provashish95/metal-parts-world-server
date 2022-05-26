@@ -42,6 +42,7 @@ async function run() {
         const ordersCollection = client.db('metalDb').collection('orders');
         const usersCollection = client.db('metalDb').collection('users');
         const paymentsCollection = client.db('metalDb').collection('payments');
+        const reviewsCollection = client.db('metalDb').collection('reviews');
         console.log('db connected');
 
         //verify admin 
@@ -108,20 +109,7 @@ async function run() {
             res.send(result);
         });
 
-        //update product quantity api 
-        /*         app.put('/updateQuantity/:id', async (req, res) => {
-                    const id = req.params.id;
-                    const data = req.body;
-                    const filter = { _id: ObjectId(id) };
-                    const options = { upsert: true };
-                    const updateDoc = {
-                        $set: {
-                            quantity: data.updateQuantity
-                        },
-                    };
-                    const result = await productsCollection.updateOne(filter, updateDoc, options);
-                    res.send(result)
-                }); */
+
 
         //added order on database api 
         app.post('/orders', verifyToken, async (req, res) => {
@@ -162,7 +150,18 @@ async function run() {
         });
 
 
+        //added review in database  api 
+        app.post('/reviews', verifyToken, async (req, res) => {
+            const review = req.body;
+            const result = await reviewsCollection.insertOne(review);
+            res.send(result);
+        });
 
+        //get all reviews  api 
+        app.get('/reviews', async (req, res) => {
+            const reviews = await reviewsCollection.find().toArray();
+            res.send(reviews);
+        });
 
 
         //add or update user email for login , register, google sign in
@@ -180,11 +179,38 @@ async function run() {
             res.send({ result, token });
         });
 
+
+
         //get all users api 
         app.get('/users', verifyToken, async (req, res) => {
             const users = await usersCollection.find().toArray();
             res.send(users);
         });
+
+
+        //get user by email 
+        app.get('/users/:email', verifyToken, async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await usersCollection.findOne(query);
+            res.send(result);
+        });
+
+        //update user profile
+        app.put('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+
+            const updateDoc = {
+                $set: user
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            res.send({ result });
+        });
+
+
 
         //make admin from users
         app.put('/user/admin/:email', verifyToken, verifyAdmin, async (req, res) => {
